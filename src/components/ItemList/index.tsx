@@ -26,8 +26,6 @@ export const ItemList = ({ items }: Props) => {
 
   useEffect(() => {
     const handleResize = () => {
-      console.log("hr ran!");
-
       if (listState === "extended") {
         return;
       }
