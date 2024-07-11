@@ -1,4 +1,4 @@
-export const throttle = (fn: Function, ms: number = 100) => {
+export const throttle = (fn: Function, ms: number) => {
   let wait = false;
 
   return function () {

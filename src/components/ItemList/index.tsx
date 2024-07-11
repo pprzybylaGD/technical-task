@@ -40,7 +40,7 @@ export const ItemList = ({ items }: Props) => {
       setListState("defaultSmall");
     };
 
-    const throttledHandleResize = throttle(handleResize);
+    const throttledHandleResize = throttle(handleResize, 50);
 
     window.addEventListener("resize", throttledHandleResize);
 
