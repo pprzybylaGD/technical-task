@@ -1,0 +1,96 @@
+@import "../../variables";
+
+.item-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  font-size: $font-size-base;
+
+  &__list {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 5rem;
+
+    @media only screen and (max-width: 920px) {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+  &__btn {
+    cursor: pointer;
+    border: unset;
+    background-color: unset;
+    color: $color-blue;
+    width: fit-content;
+    padding: 0.5rem 1rem;
+
+    &:hover {
+      color: $color-darkblue;
+    }
+  }
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  max-width: 20rem;
+  width: 100%;
+  gap: 0.5rem;
+
+  &__main {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  &__badge {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+    width: 5rem;
+    padding: 0.5rem 3rem;
+
+    &--green {
+      border: 1px solid $color-green;
+      background-color: lighten($color-green, 70%);
+      color: $color-darkgreen;
+    }
+
+    &--yellow {
+      border: 1px solid $color-darkgoldenrod;
+      background-color: lighten($color-yellow, 40%);
+      color: $color-darkgoldenrod;
+    }
+
+    &--blue {
+      border: 1px solid $color-blue;
+      background-color: lighten($color-blue, 48%);
+      color: $color-darkblue;
+    }
+
+    &--red {
+      border: 1px solid $color-red;
+      background-color: lighten($color-red, 45%);
+      color: $color-darkred;
+    }
+
+    &--purple {
+      border: 1px solid $color-purple;
+      background-color: lighten($color-purple, 70%);
+      color: $color-darkmagenta;
+    }
+  }
+
+  &__availability {
+    color: blue;
+  }
+
+  &__order {
+    font-weight: 300;
+  }
+}

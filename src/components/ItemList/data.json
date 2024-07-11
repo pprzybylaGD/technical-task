@@ -1,0 +1,27 @@
+[
+  {
+    "value": "inStore",
+    "amount": 20,
+    "text": "Order now, ETA 12pm"
+  },
+  {
+    "value": "today",
+    "amount": 45,
+    "text": "Order by 12pm, ETA 4pm"
+  },
+  {
+    "value": "tomorrow",
+    "amount": 20,
+    "text": "Order by 12pm"
+  },
+  {
+    "value": "order",
+    "amount": 200,
+    "text": "Please make your order"
+  },
+  {
+    "value": "notAvailable",
+    "amount": 80,
+    "text": "Order not available"
+  }
+]

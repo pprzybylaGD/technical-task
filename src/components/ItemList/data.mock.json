@@ -1,0 +1,27 @@
+[
+  {
+    "value": "inStore",
+    "amount": 1,
+    "text": "Text 1"
+  },
+  {
+    "value": "today",
+    "amount": 2,
+    "text": "Text 2"
+  },
+  {
+    "value": "tomorrow",
+    "amount": 3,
+    "text": "Text 3"
+  },
+  {
+    "value": "order",
+    "amount": 4,
+    "text": "Text 4"
+  },
+  {
+    "value": "notAvailable",
+    "amount": 5,
+    "text": "Text 5"
+  }
+]
