@@ -18,7 +18,7 @@ const items: Item[] = itemsData as Item[];
 describe("ItemList component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    Object.defineProperty(window, 'innerWidth', {
+    Object.defineProperty(window, "innerWidth", {
       writable: true,
       configurable: true,
     });
@@ -36,7 +36,7 @@ describe("ItemList component", () => {
       expect(screen.getByText(item.text)).toBeInTheDocument();
     });
 
-    expect(await queryShowAllButton()).not.toBeInTheDocument;
+    expect(await queryShowAllButton()).not.toBeInTheDocument();
   });
 
   test("renders only three items on smaller screens along with button", async () => {
@@ -96,7 +96,7 @@ describe("ItemList component", () => {
       expect(screen.getByText(item.text)).toBeInTheDocument();
     });
 
-    expect(screen.queryByText(SHOW_ALL_BUTTON_TEXT)).not.toBeInTheDocument;
+    expect(screen.queryByText(SHOW_ALL_BUTTON_TEXT)).not.toBeInTheDocument();
   });
 
   test("hides button and shows all items when resizing from small to large screen", async () => {
