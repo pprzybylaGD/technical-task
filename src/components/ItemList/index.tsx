@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { throttle } from "../../utils/throttle";
+import { throttle } from "@/utils/throttle";
 import { getBadgeColor } from "./utils";
 import { AVAILABILITY_OPTIONS, Item } from "./types";
 import "./styles.scss";
