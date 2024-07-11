@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { throttle } from "@/utils/throttle";
-import { getBadgeColor } from "./utils";
-import { AVAILABILITY_OPTIONS, Item } from "./types";
+import { ItemElement } from "../ItemElement";
+import { Item } from "@/types";
 import "./styles.scss";
 
 interface Props {
@@ -51,20 +51,8 @@ export const ItemList = ({ items }: Props) => {
         {(listState === "defaultSmall"
           ? items.slice(0, SHORT_LIST_LENGTH)
           : items
-        ).map(({ value, amount, text }, index) => (
-          <li className="item" key={index}>
-            <div className="item__main">
-              <span
-                className={`item__badge item__badge--${getBadgeColor(value)}`}
-              >
-                {amount}
-              </span>
-              <span className="item__availability">
-                {AVAILABILITY_OPTIONS[value]}
-              </span>
-            </div>
-            <p className="item__order">{text}</p>
-          </li>
+        ).map((item, index) => (
+          <ItemElement key={index} item={item} />
         ))}
       </ul>
       {listState === "defaultSmall" && (

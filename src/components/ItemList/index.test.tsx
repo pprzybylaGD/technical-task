@@ -3,7 +3,7 @@ import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SHORT_LIST_LENGTH, SHOW_ALL_ITEMS_BREAKPOINT } from ".";
 import * as itemsData from "./data.mock.json";
-import { Item } from "./types";
+import { Item } from "@/types";
 
 const LARGER_SCREEN_SIZE = SHOW_ALL_ITEMS_BREAKPOINT + 100;
 const SMALLER_SCREEN_SIZE = SHOW_ALL_ITEMS_BREAKPOINT - 100;
