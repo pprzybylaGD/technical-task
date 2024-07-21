@@ -1,6 +1,6 @@
 import "./App.scss";
 import { ItemList } from "./components/ItemList";
-import { Item } from "./components/ItemList/types";
+import { Item } from "./types";
 import itemsData from "./components/ItemList/data.json";
 import "./globalStyles.scss";
 
