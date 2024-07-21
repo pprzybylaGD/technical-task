@@ -1,6 +1,13 @@
 import { throttle } from "./throttle";
 
-jest.useFakeTimers();
+beforeEach(() => {
+  jest.useFakeTimers();
+});
+
+afterEach(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
 
 describe("throttle", () => {
   it("should call the function immediately if not throttled", () => {
