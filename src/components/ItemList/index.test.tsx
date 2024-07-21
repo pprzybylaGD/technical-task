@@ -1,6 +1,6 @@
-import { ItemList } from ".";
-import { render, screen, act } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { ItemList } from ".";
 import { SHORT_LIST_LENGTH, SHOW_ALL_ITEMS_BREAKPOINT } from ".";
 import * as itemsData from "./data.mock.json";
 import { Item } from "@/types";
@@ -9,156 +9,149 @@ const LARGER_SCREEN_SIZE = SHOW_ALL_ITEMS_BREAKPOINT + 100;
 const SMALLER_SCREEN_SIZE = SHOW_ALL_ITEMS_BREAKPOINT - 100;
 const SHOW_ALL_BUTTON_TEXT = "View all availability";
 
-const queryShowAllButton = async () => {
-  return screen.queryByRole("button", { name: SHOW_ALL_BUTTON_TEXT });
-};
+function renderComponent() {
+  const items: Item[] = structuredClone(itemsData) as Item[];
 
-const items: Item[] = itemsData as Item[];
+  render(<ItemList items={items} />);
 
-describe("ItemList component", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    Object.defineProperty(window, "innerWidth", {
-      writable: true,
-      configurable: true,
-    });
+  return {
+    items,
+  };
+}
+
+test("renders all items on larger screens without button", async () => {
+  fireEvent.resize(window, {
+    target: { innerWidth: LARGER_SCREEN_SIZE },
   });
 
-  test("renders all items on larger screens without button", async () => {
-    await act(async () => {
-      window.innerWidth = LARGER_SCREEN_SIZE;
-      window.dispatchEvent(new Event("resize"));
-    });
+  const { items } = renderComponent();
 
-    render(<ItemList items={items} />);
+  for (const item of items) {
+    expect(screen.getByText(item.text)).toBeInTheDocument();
+  }
 
-    items.forEach((item) => {
-      expect(screen.getByText(item.text)).toBeInTheDocument();
-    });
+  expect(
+    screen.queryByRole("button", { name: SHOW_ALL_BUTTON_TEXT })
+  ).not.toBeInTheDocument();
+});
 
-    expect(await queryShowAllButton()).not.toBeInTheDocument();
+test("renders only the three first items on smaller screens along with button", async () => {
+  fireEvent.resize(window, {
+    target: { innerWidth: SMALLER_SCREEN_SIZE },
   });
 
-  test("renders only three items on smaller screens along with button", async () => {
-    await act(async () => {
-      window.innerWidth = SMALLER_SCREEN_SIZE;
-      window.dispatchEvent(new Event("resize"));
-    });
+  const { items } = renderComponent();
 
-    render(<ItemList items={items} />);
+  for (const item of items.slice(0, SHORT_LIST_LENGTH)) {
+    expect(screen.getByText(item.text)).toBeInTheDocument();
+  }
 
-    items.slice(0, SHORT_LIST_LENGTH).forEach((item) => {
-      expect(screen.getByText(item.text)).toBeInTheDocument();
-    });
+  for (const item of items.slice(SHORT_LIST_LENGTH)) {
+    expect(screen.queryByText(item.text)).not.toBeInTheDocument();
+  }
 
-    items.slice(SHORT_LIST_LENGTH).forEach((item) => {
-      expect(screen.queryByText(item.text)).toBeNull();
-    });
+  expect(
+    screen.getByRole("button", { name: SHOW_ALL_BUTTON_TEXT })
+  ).toBeInTheDocument();
+});
 
-    expect(await queryShowAllButton()).toBeInTheDocument();
+test("button rendered on smaller screens is focusable", async () => {
+  fireEvent.resize(window, {
+    target: { innerWidth: SMALLER_SCREEN_SIZE },
   });
 
-  test("button is focusable on smaller screens", async () => {
-    await act(async () => {
-      window.innerWidth = SMALLER_SCREEN_SIZE;
-      window.dispatchEvent(new Event("resize"));
-    });
+  renderComponent();
 
-    render(<ItemList items={items} />);
+  const button = screen.getByRole("button", { name: SHOW_ALL_BUTTON_TEXT });
 
-    const button = await queryShowAllButton();
-    button!.focus();
-    expect(button).toHaveFocus();
+  button.focus();
+  expect(button).toHaveFocus();
+});
+
+test("shows all items when button is clicked on smaller screens and hides button", async () => {
+  const user = userEvent.setup();
+
+  fireEvent.resize(window, {
+    target: { innerWidth: SMALLER_SCREEN_SIZE },
   });
 
-  test("shows all items when button is clicked on smaller screens and hides button", async () => {
-    const user = userEvent.setup();
+  const { items } = renderComponent();
 
-    await act(async () => {
-      window.innerWidth = SMALLER_SCREEN_SIZE;
-      window.dispatchEvent(new Event("resize"));
-    });
+  for (const item of items.slice(0, SHORT_LIST_LENGTH)) {
+    expect(screen.getByText(item.text)).toBeInTheDocument();
+  }
 
-    render(<ItemList items={items} />);
+  for (const item of items.slice(SHORT_LIST_LENGTH)) {
+    expect(screen.queryByText(item.text)).not.toBeInTheDocument();
+  }
 
-    items.slice(0, SHORT_LIST_LENGTH).forEach((item) => {
-      expect(screen.getByText(item.text)).toBeInTheDocument();
-    });
+  const button = screen.getByRole("button", { name: SHOW_ALL_BUTTON_TEXT });
+  await user.click(button);
 
-    items.slice(SHORT_LIST_LENGTH).forEach((item) => {
-      expect(screen.queryByText(item.text)).toBeNull();
-    });
+  for (const item of items) {
+    expect(screen.getByText(item.text)).toBeInTheDocument();
+  }
 
-    const button = await queryShowAllButton();
-    await user.click(button!);
+  expect(button).not.toBeInTheDocument();
+});
 
-    items.forEach((item) => {
-      expect(screen.getByText(item.text)).toBeInTheDocument();
-    });
-
-    expect(screen.queryByText(SHOW_ALL_BUTTON_TEXT)).not.toBeInTheDocument();
+test("hides button and shows all items when resizing from small to large screen", async () => {
+  fireEvent.resize(window, {
+    target: { innerWidth: SMALLER_SCREEN_SIZE },
   });
 
-  test("hides button and shows all items when resizing from small to large screen", async () => {
-    await act(async () => {
-      window.innerWidth = SMALLER_SCREEN_SIZE;
-      window.dispatchEvent(new Event("resize"));
-    });
+  const { items } = renderComponent();
 
-    const { rerender } = render(<ItemList items={items} />);
+  for (const item of items.slice(0, SHORT_LIST_LENGTH)) {
+    expect(screen.getByText(item.text)).toBeInTheDocument();
+  }
 
-    items.slice(0, 3).forEach((item) => {
-      expect(screen.getByText(item.text)).toBeInTheDocument();
-    });
+  for (const item of items.slice(SHORT_LIST_LENGTH)) {
+    expect(screen.queryByText(item.text)).not.toBeInTheDocument();
+  }
 
-    items.slice(3).forEach((item) => {
-      expect(screen.queryByText(item.text)).toBeNull();
-    });
+  const button = screen.getByRole("button", { name: SHOW_ALL_BUTTON_TEXT });
+  expect(button).toBeInTheDocument();
 
-    expect(await queryShowAllButton()).toBeInTheDocument();
-
-    await act(async () => {
-      window.innerWidth = LARGER_SCREEN_SIZE;
-      window.dispatchEvent(new Event("resize"));
-    });
-
-    rerender(<ItemList items={items} />);
-
-    items.forEach((item) => {
-      expect(screen.getByText(item.text)).toBeInTheDocument();
-    });
-
-    expect(screen.queryByText(SHOW_ALL_BUTTON_TEXT)).not.toBeInTheDocument();
+  fireEvent.resize(window, {
+    target: { innerWidth: LARGER_SCREEN_SIZE },
   });
 
-  test("hides items and shows button when resizing from large to small screen", async () => {
-    await act(async () => {
-      window.innerWidth = LARGER_SCREEN_SIZE;
-      window.dispatchEvent(new Event("resize"));
-    });
+  for (const item of items) {
+    expect(screen.getByText(item.text)).toBeInTheDocument();
+  }
 
-    const { rerender } = render(<ItemList items={items} />);
+  expect(button).not.toBeInTheDocument();
+});
 
-    items.forEach((item) => {
-      expect(screen.getByText(item.text)).toBeInTheDocument();
-    });
-
-    expect(screen.queryByText(SHOW_ALL_BUTTON_TEXT)).not.toBeInTheDocument();
-
-    await act(async () => {
-      window.innerWidth = SMALLER_SCREEN_SIZE;
-      global.dispatchEvent(new Event("resize"));
-    });
-
-    rerender(<ItemList items={items} />);
-
-    items.slice(0, SHORT_LIST_LENGTH).forEach((item) => {
-      expect(screen.getByText(item.text)).toBeInTheDocument();
-    });
-    items.slice(SHORT_LIST_LENGTH).forEach((item) => {
-      expect(screen.queryByText(item.text)).not.toBeInTheDocument();
-    });
-
-    expect(await queryShowAllButton()).toBeInTheDocument();
+test("hides items and shows button when resizing from large to small screen", async () => {
+  fireEvent.resize(window, {
+    target: { innerWidth: LARGER_SCREEN_SIZE },
   });
+
+  const { items } = renderComponent();
+
+  for (const item of items) {
+    expect(screen.getByText(item.text)).toBeInTheDocument();
+  }
+
+  expect(
+    screen.queryByRole("button", { name: SHOW_ALL_BUTTON_TEXT })
+  ).not.toBeInTheDocument();
+
+  fireEvent.resize(window, {
+    target: { innerWidth: SMALLER_SCREEN_SIZE },
+  });
+
+  for (const item of items.slice(0, SHORT_LIST_LENGTH)) {
+    expect(screen.getByText(item.text)).toBeInTheDocument();
+  }
+
+  for (const item of items.slice(SHORT_LIST_LENGTH)) {
+    expect(screen.queryByText(item.text)).not.toBeInTheDocument();
+  }
+
+  expect(
+    screen.getByRole("button", { name: SHOW_ALL_BUTTON_TEXT })
+  ).toBeInTheDocument();
 });
