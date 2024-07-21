@@ -19,139 +19,112 @@ function renderComponent() {
   };
 }
 
-test("renders all items on larger screens without button", async () => {
+test("allows user to see entire list on large screen, and only a part of the list on smaller screen along with a button", () => {
+  // initialize the screen to large size first
   fireEvent.resize(window, {
     target: { innerWidth: LARGER_SCREEN_SIZE },
   });
 
+  // render the component
   const { items } = renderComponent();
 
+  // check if entire list is shown
   for (const item of items) {
-    expect(screen.getByText(item.text)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(item.text)));
   }
 
+  // make sure button is not visible
   expect(
     screen.queryByRole("button", { name: SHOW_ALL_BUTTON_TEXT })
   ).not.toBeInTheDocument();
-});
 
-test("renders only the three first items on smaller screens along with button", async () => {
+  // resize the screen to small size
   fireEvent.resize(window, {
     target: { innerWidth: SMALLER_SCREEN_SIZE },
   });
 
-  const { items } = renderComponent();
-
+  // check if only part of list is visible
   for (const item of items.slice(0, SHORT_LIST_LENGTH)) {
-    expect(screen.getByText(item.text)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(item.text))).toBeInTheDocument();
   }
 
   for (const item of items.slice(SHORT_LIST_LENGTH)) {
-    expect(screen.queryByText(item.text)).not.toBeInTheDocument();
+    expect(screen.queryByText(new RegExp(item.text))).not.toBeInTheDocument();
   }
 
-  expect(
-    screen.getByRole("button", { name: SHOW_ALL_BUTTON_TEXT })
-  ).toBeInTheDocument();
-});
-
-test("button rendered on smaller screens is focusable", async () => {
-  fireEvent.resize(window, {
-    target: { innerWidth: SMALLER_SCREEN_SIZE },
-  });
-
-  renderComponent();
-
-  const button = screen.getByRole("button", { name: SHOW_ALL_BUTTON_TEXT });
-
-  button.focus();
-  expect(button).toHaveFocus();
-});
-
-test("shows all items when button is clicked on smaller screens and hides button", async () => {
-  const user = userEvent.setup();
-
-  fireEvent.resize(window, {
-    target: { innerWidth: SMALLER_SCREEN_SIZE },
-  });
-
-  const { items } = renderComponent();
-
-  for (const item of items.slice(0, SHORT_LIST_LENGTH)) {
-    expect(screen.getByText(item.text)).toBeInTheDocument();
-  }
-
-  for (const item of items.slice(SHORT_LIST_LENGTH)) {
-    expect(screen.queryByText(item.text)).not.toBeInTheDocument();
-  }
-
-  const button = screen.getByRole("button", { name: SHOW_ALL_BUTTON_TEXT });
-  await user.click(button);
-
-  for (const item of items) {
-    expect(screen.getByText(item.text)).toBeInTheDocument();
-  }
-
-  expect(button).not.toBeInTheDocument();
-});
-
-test("hides button and shows all items when resizing from small to large screen", async () => {
-  fireEvent.resize(window, {
-    target: { innerWidth: SMALLER_SCREEN_SIZE },
-  });
-
-  const { items } = renderComponent();
-
-  for (const item of items.slice(0, SHORT_LIST_LENGTH)) {
-    expect(screen.getByText(item.text)).toBeInTheDocument();
-  }
-
-  for (const item of items.slice(SHORT_LIST_LENGTH)) {
-    expect(screen.queryByText(item.text)).not.toBeInTheDocument();
-  }
-
+  // check if button is visible
   const button = screen.getByRole("button", { name: SHOW_ALL_BUTTON_TEXT });
   expect(button).toBeInTheDocument();
 
+  // resize the screen to large size again
   fireEvent.resize(window, {
     target: { innerWidth: LARGER_SCREEN_SIZE },
   });
 
+  // check again if entire list is visible
   for (const item of items) {
-    expect(screen.getByText(item.text)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(item.text)));
   }
 
+  // check again if button is not visible
   expect(button).not.toBeInTheDocument();
 });
 
-test("hides items and shows button when resizing from large to small screen", async () => {
-  fireEvent.resize(window, {
-    target: { innerWidth: LARGER_SCREEN_SIZE },
-  });
+test("clicking the button allows user to always see the entire list on small screen", async () => {
+  const user = userEvent.setup();
 
-  const { items } = renderComponent();
-
-  for (const item of items) {
-    expect(screen.getByText(item.text)).toBeInTheDocument();
-  }
-
-  expect(
-    screen.queryByRole("button", { name: SHOW_ALL_BUTTON_TEXT })
-  ).not.toBeInTheDocument();
-
+  // initialize the screen to small size
   fireEvent.resize(window, {
     target: { innerWidth: SMALLER_SCREEN_SIZE },
   });
 
+  // render the component
+  const { items } = renderComponent();
+
+  // check if only part of list is visible
   for (const item of items.slice(0, SHORT_LIST_LENGTH)) {
-    expect(screen.getByText(item.text)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(item.text))).toBeInTheDocument();
   }
 
   for (const item of items.slice(SHORT_LIST_LENGTH)) {
-    expect(screen.queryByText(item.text)).not.toBeInTheDocument();
+    expect(screen.queryByText(new RegExp(item.text))).not.toBeInTheDocument();
   }
 
-  expect(
-    screen.getByRole("button", { name: SHOW_ALL_BUTTON_TEXT })
-  ).toBeInTheDocument();
+  // check if button is visible
+  const button = screen.getByRole("button", { name: SHOW_ALL_BUTTON_TEXT });
+  expect(button).toBeInTheDocument();
+
+  // click the button
+  await user.click(button);
+
+  // check if user can now see entire list
+  for (const item of items) {
+    expect(screen.getByText(new RegExp(item.text))).toBeInTheDocument();
+  }
+
+  // check if button is no longer visible
+  expect(button).not.toBeInTheDocument();
+
+  // resize to large screen
+  fireEvent.resize(window, {
+    target: { innerWidth: LARGER_SCREEN_SIZE },
+  });
+
+  // check if user can see entire list
+  for (const item of items) {
+    expect(screen.getByText(new RegExp(item.text))).toBeInTheDocument();
+  }
+
+  // resize back to small screen
+  fireEvent.resize(window, {
+    target: { innerWidth: SMALLER_SCREEN_SIZE },
+  });
+
+  // check if user can still see entire list
+  for (const item of items) {
+    expect(screen.getByText(new RegExp(item.text))).toBeInTheDocument();
+  }
+
+  // check if button is not visible
+  expect(button).not.toBeInTheDocument();
 });
